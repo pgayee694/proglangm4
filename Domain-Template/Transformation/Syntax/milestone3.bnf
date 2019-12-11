@@ -1,0 +1,35 @@
+USE_LR_PARSER
+
+stmtList
+
+(* ======================================================================================================= *) 
+<stmtList>           ::= <stmt> <stmtList>	| <epsilon>                                                       .
+<epsilon>            ::=                                                                                          .
+<stmt>               ::= <dec>";" | <cond> | <iter> | <block> | <increment>";" | <printExpression>";" | <assign>";" .
+<iter>               ::= "while" "(" <expression> ")" <block>
+                         | "for" "(" <assign>";" <expression> ";" <increment> ")" <block>	                  .
+                                      
+<dec> ::= "int" id | "int" id "=" <expression> | "bool" id | "bool" id "=" <expression>                           .
+
+<cond>               ::= "if" "(" <expression> ")" <block>                                                        .
+<increment>          ::= <postIncr> | <preIncr>									  .
+<postIncr>           ::= id "++" | id "--"									  .
+<preIncr>            ::= "++" id | "--" id       .
+<assign>             ::= id "=" <expression>                                                                                                                                 .
+<block>              ::= "{" <stmtList> "}"                                                                       .
+<printExpression>    ::= "print" <expression>                                                                     .                                                                 
+<expression>         ::= <expression> "||" <disjunction> | <disjunction>					  .
+<disjunction>        ::= <disjunction> "&&" <conjunction> | <conjunction>			                  .					
+<conjunction>        ::= <conjunction> "!=" <equality> | <conjunction> "==" <equality> | <equality>	          .							
+<equality>           ::= <equality> "<" <expr> | <equality> "<=" <expr> | <equality> ">" <expr>  
+                         | <equality> ">=" <expr> | <expr>		                                          .							
+<expr>               ::= <expr> "+" <term> | <expr> "-" <term> | <term>	                                          .									
+<term>               ::= <term> "*" <complex> | <term> "/" <complex>
+                        | <term> "%" <complex> | <complex>			                                  .
+<complex>            ::= "-"<complex> | "!"<complex> | <exponent>                                                 .							
+<factor>             ::= integer_val | boolean_val | id | <increment> | "("<expression>")" | "|"<expression>"|"           . 
+<exponent>           ::= <factor> "^" <exponent> | <factor>                                                       .
+
+
+                                                               
+                                                           
