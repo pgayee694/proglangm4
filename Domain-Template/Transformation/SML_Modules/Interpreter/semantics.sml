@@ -89,11 +89,11 @@ fun E( itree(inode("expression",_),
            ) = let
                     val (v1,m1) = E(expression, m0)
                in 
-                    if toBool(v1) then (true, m1) else 
+                    if toBool(v1) then (Boolean(true), m1) else 
                         let
                             val (v2, m2) = E(disjunction, m1)
                         in
-                            if toBool(v2) then (true, m1) else (false, m1)
+                            if toBool(v2) then (Boolean(true), m1) else (Boolean(false), m1)
                         end
                end
             
@@ -120,7 +120,7 @@ fun E( itree(inode("expression",_),
            ) = let
                     val (v1,m1) = E(disjunction,m0)
                in 
-                    if toBool(v1) then E(conjunction, m1) else (v1,m1)
+                    if (toBool(v1)) then E(conjunction, m1) else (Boolean(toBool(v1)),m1)
                end
   
   (* and => conjunction *)
@@ -329,7 +329,7 @@ fun E( itree(inode("expression",_),
                     val (v1,m1) = E(term,m0)
                     val (v2,m2) = E(complex,m1)
                 in
-                    (Integer(toInt(v1) * (v2)),m2)
+                    (Integer( ( ( toInt(v1) ) * ( toInt(v2) ) ) ),m2)
                 end
                 
   (* division *)            
@@ -389,7 +389,7 @@ fun E( itree(inode("expression",_),
            )  = let
                     val (v,m1) = E(complex,m0)
                 in
-                    (Integer(~toBool(v)), m1)
+                    (Integer( (~1 * (toInt(v))) ), m1)
                 end 
 
   (* negation *)
@@ -404,7 +404,7 @@ fun E( itree(inode("expression",_),
            ) = let
                     val (v,m1) = E(complex,m0)
                in
-                    (Boolean(not toBool(v)), m1)
+                    (Boolean( not ( toBool(v) ) ), m1)
                end
    
   (* power *)
@@ -649,7 +649,7 @@ fun M( itree(inode("stmtList", _),
         ) = let
 		val (v, m1) = E(itree(inode("expression", info4), children4), m0 )
 	in
-	    if v then M(itree(inode("iter",info1),
+	    if toBool(v) then M(itree(inode("iter",info1),
                     [
                         itree(inode("while", info2), children2),
                         itree(inode("(",info3), []),
@@ -759,7 +759,7 @@ fun M( itree(inode("stmtList", _),
         ) = let
                 val (v, m1) = E( expression_node, m0 )
             in
-                if v then M ( itree(inode("block", info2), children2), m1)
+                if toBool(v) then M ( itree(inode("block", info2), children2), m1)
                 else m1
             end 
 
