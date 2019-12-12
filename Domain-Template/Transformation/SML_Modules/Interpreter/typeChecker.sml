@@ -570,7 +570,7 @@ fun typeOf( itree(inode("expression",_),
     let
         val t1 = typeOf(complex,m)
     in
-        if t1 = INT then INT
+        if t1 = BOOL then BOOL
         else ERROR
     end
 
