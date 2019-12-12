@@ -373,33 +373,11 @@ fun typeOf( itree(inode("expression",_),
 (* factor ::= integer | boolean | id | increment | (expression) | |expression| *)          
 | typeOf ( itree(inode("factor",_),
 		         [
-			     integer
-		         ]
-		  ),
-	      m
-	 ) = INT
-| typeOf ( itree(inode("factor",_),
-		         [
-			     boolean
-		         ]
-		  ),
-	      m
-	 )  = BOOL
-| typeOf ( itree(inode("factor",_),
-		         [
 			     itree(inode("id", i1), [])
 		         ]
 		  ),
 	      m
 	 ) = getType(accessEnv(getLeaf(itree(inode("id", i1), [])), m))
-
-| typeOf ( itree(inode("factor",_),
-		         [
-			     increment
-		         ]
-		  ),
-	       m
-	  ) = typeOf(increment, m)
       
 | typeOf ( itree(inode("factor",_),
 		         [
@@ -426,6 +404,30 @@ fun typeOf( itree(inode("expression",_),
         if t1 = INT then INT
         else ERROR
     end
+    
+| typeOf ( itree(inode("factor",_),
+		         [
+			     itree(inode("integer_val", _), [])
+		         ]
+		  ),
+	      m
+	 ) = INT
+         
+| typeOf ( itree(inode("factor",_),
+		         [
+			     itree(inode("boolean_val", _), [])
+		         ]
+		  ),
+	      m
+	 )  = BOOL
+         
+| typeOf ( itree(inode("factor",_),
+		         [
+			     increment
+		         ]
+		  ),
+	       m
+	  ) = typeOf(increment, m)
     
   (* postIncr ::= id++ | id-- *)
   | typeOf ( itree(inode("postIncr",_),
@@ -495,7 +497,9 @@ fun typeOf( itree(inode("expression",_),
         in
             t
         end
-
+  | typeOf( itree(inode(x_root,_),children), _) = raise General.Fail("\n\nIn typeOf root = " ^ x_root ^ "\n\n")
+  | typeOf _ = raise Fail("Error in Model.typeOf - this should never occur")
+  
 fun typeCheck( itree(inode("stmtList",_), 
                     [
                          stmt,
@@ -517,40 +521,16 @@ fun typeCheck( itree(inode("stmtList",_),
                 
 | typeCheck( itree(inode("stmt",_), 
                     [
-                         dec,
+                         stmt,
                          itree(inode(";",_), [] )
                     ]
                 ), m0 ) =
     let
-        val m1 = typeCheck(dec, m0)
+        val m1 = typeCheck(stmt, m0)
     in
         m1
     end
-    
-| typeCheck( itree(inode("stmt",_), 
-                    [
-                         cond,
-                         itree(inode(";",_), [] )
-                    ]
-                ), m0 ) =
-    let
-        val m1 = typeCheck(cond, m0)
-    in
-        m1
-    end
-    
-| typeCheck( itree(inode("stmt",_), 
-                    [
-                         iter,
-                         itree(inode(";",_), [] )
-                    ]
-                ), m0 ) =
-    let
-        val m1 = typeCheck(iter, m0)
-    in
-        m1
-    end
-    
+ 
 | typeCheck( itree(inode("stmt",_), 
                     [
                          block
@@ -558,42 +538,6 @@ fun typeCheck( itree(inode("stmtList",_),
                 ), m0 ) =
     let
         val m1 = typeCheck(block, m0)
-    in
-        m1
-    end
-    
-| typeCheck( itree(inode("stmt",_), 
-                    [
-                         increment,
-                         itree(inode(";",_), [] )
-                    ]
-                ), m0 ) =
-    let
-        val m1 = typeCheck(increment, m0)
-    in
-        m1
-    end
-    
-| typeCheck( itree(inode("stmt",_), 
-                    [
-                         printStatement,
-                         itree(inode(";",_), [] )
-                    ]
-                ), m0 ) =
-    let
-        val m1 = typeCheck(printStatement, m0)
-    in
-        m1
-    end
-    
-| typeCheck( itree(inode("stmt",_), 
-                    [
-                         assign,
-                         itree(inode(";",_), [] )
-                    ]
-                ), m0 ) =
-    let
-        val m1 = typeCheck(assign, m0)
     in
         m1
     end
@@ -690,22 +634,11 @@ fun typeCheck( itree(inode("stmtList",_),
     
 | typeCheck( itree(inode("increment",_), 
                     [
-                         postIncr
+                         increment
                     ]
                 ), m0 ) =
     let
-	val t1 = typeOf(postIncr, m0)
-    in
-        if t1 = INT then m0 else raise model_error
-    end
-    
-| typeCheck( itree(inode("increment",_), 
-                    [
-                         preIncr
-                    ]
-                ), m0 ) =
-    let
-	val t1 = typeOf(preIncr, m0)
+	val t1 = typeOf(increment, m0)
     in
         if t1 = INT then m0 else raise model_error
     end
