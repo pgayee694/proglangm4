@@ -20,9 +20,9 @@ fun typeCheck( itree(inode("prog",_), [ stmt_list ] ), m) = m
 
 fun typeOf( itree(inode("expression",_),
                     [
-                         itree(inode(“expression”, i1), c1), 
+                         expression, 
                          itree(inode(“||”, _), [] ),
-                         itree(inode(“disjunction”, i2), c2)
+                         disjunction
                     ]
                 ), m ) =
     let
@@ -35,7 +35,7 @@ fun typeOf( itree(inode("expression",_),
 
 | typeOf( itree(inode("expression",_),
                     [
-                         itree(inode(“disjunction”, _), c1)
+                         disjunction
                     ]
                 ),
            m
@@ -46,9 +46,9 @@ fun typeOf( itree(inode("expression",_),
 
 | typeOf( itree(inode("disjunction",_),
                     [
-                         itree(inode(“disjunction”, i1), c1), 
+                         disjunction, 
                          itree(inode(“&&”, _), [] ),
-                         itree(inode(“conjunction”, i2), c2)
+                         conjunction
                     ]
                 ),
            m
@@ -63,7 +63,7 @@ fun typeOf( itree(inode("expression",_),
 
 | typeOf( itree(inode("disjunction",_),
                     [
-                         itree(inode(“conjunction”, i1), c1)
+                         conjunction
                     ]
                 ),
            m
@@ -72,9 +72,9 @@ fun typeOf( itree(inode("expression",_),
 
 | typeOf( itree(inode("conjunction",_),
                     [
-                         itree(inode(“conjunction”, i1), c1), 
+                         conjunction, 
                          itree(inode(“!=”, _), [] ),
-                         itree(inode(“equality”, i2), c2)
+                         equality
                     ]
                 ),
            m
@@ -90,9 +90,9 @@ fun typeOf( itree(inode("expression",_),
     
 | typeOf( itree(inode("conjunction",_),
                     [
-                         itree(inode(“conjunction”, i1), c1), 
+                         conjunction, 
                          itree(inode(“==”, _), [] ),
-                         itree(inode(“equality”, i2), c2)
+                         equality
                     ]
                 ),
            m
@@ -106,10 +106,10 @@ fun typeOf( itree(inode("expression",_),
         else ERROR
     end
     
-| E( itree(inode("conjunction",_),
+| typeOf( itree(inode("conjunction",_),
                     [
                    
-                         itree(inode(“equality”, i1), c1)
+                         equality
                     ]
                 ),
            m
@@ -119,9 +119,9 @@ fun typeOf( itree(inode("expression",_),
 
 | typeOf( itree(inode("equality",_),
                     [
-                         itree(inode(“equality”, i1), c1), 
+                         equality, 
                          itree(inode(“<”, _), [] ),
-                         itree(inode(“expr”, i2), c2)
+                         expr
                     ]
                 ),
            m
@@ -137,13 +137,13 @@ fun typeOf( itree(inode("expression",_),
     
 | typeOf( itree(inode("equality",_),
                     [
-                         itree(inode(“equality”, i1), c1), 
-    itree(inode(“<=”, _), [] ),
-                         itree(inode(“expr”, i2), c2)
+                         equality, 
+    			 itree(inode(“<=”, _), [] ),
+                         expr
                     ]
                 ),
            m
-           )) =
+           ) =
 
     let
         val t1 = typeOf(equality,m)
@@ -155,12 +155,12 @@ fun typeOf( itree(inode("expression",_),
 
 | typeOf( itree(inode("equality",_),
                     [
-                         itree(inode(“equality”, i1), c1), 
-    itree(inode(“>”, _), [] ),
-                         itree(inode(“expr”, i2), c2)
+                         equality, 
+    			 itree(inode(“>”, _), [] ),
+                         expr
                     ]
                 ),
-           m0
+           m
            ) =
 
     let
@@ -173,12 +173,12 @@ fun typeOf( itree(inode("expression",_),
 
 | typeOf( itree(inode("equality",_),
                     [
-                         itree(inode(“equality”, i1), c1), 
+                         equality, 
                          itree(inode(“>=”, _), [] ),
-                         itree(inode(“expr”, i2), c2)
+                         expr
                     ]
                 ),
-           m0
+           m
            ) =
     let
         val t1 = typeOf(equality,m)
@@ -191,19 +191,18 @@ fun typeOf( itree(inode("expression",_),
 | typeOf( itree(inode("equality",_),
                     [
                     
-                         itree(inode(“expr”, i1), c1)
+                         expr
                     ]
                 ),
            m
            ) =
     typeOf(expr,m)
 
-expr ::= expr + term | expr - term | term
 | typeOf( itree(inode("expr",_),
                     [
-                         itree(inode(“expr”, i1), c1), 
+                         expr, 
                          itree(inode(“+”, _), [] ),
-                         itree(inode(“term”, i2), c2)
+                         term
                     ]
                 ),
            m
@@ -219,9 +218,9 @@ expr ::= expr + term | expr - term | term
 
 | typeOf( itree(inode("expr",_),
                     [
-                         itree(inode(“expr”, i1), c1), 
+                         expr, 
                          itree(inode(“-”, _), [] ),
-                         itree(inode(“term”, i2), c2)
+                         term
                     ]
                 ),
            m
@@ -237,7 +236,7 @@ expr ::= expr + term | expr - term | term
 
 | typeOf( itree(inode("expr",_),
                     [
-                         itree(inode(“term”, i2), c2)
+                         term
                     ]
                 ),
            m
@@ -246,9 +245,9 @@ expr ::= expr + term | expr - term | term
 
 | typeOf( itree(inode("term",_),
                     [
-                         itree(inode("term", i1), c1), 
-                          itree(inode(“*”, _), [] ),
-                         itree(inode(“complex”, i2), c2)
+                         term, 
+                         itree(inode(“*”, _), [] ),
+                         complex
                     ]
                 ),
            m
@@ -264,9 +263,9 @@ expr ::= expr + term | expr - term | term
 
 | typeOf( itree(inode("term",_),
                     [
-                         itree(inode("term", i1), c1), 
+                         term, 
                           itree(inode(“/”, _), [] ),
-                         itree(inode(“complex”, i2), c2)
+                         complex
                     ]
                 ),
            m
@@ -282,9 +281,9 @@ expr ::= expr + term | expr - term | term
 
 | typeOf( itree(inode("term",_),
                     [
-                         itree(inode("term", i1), c1), 
+                         term, 
                           itree(inode(“%”, _), [] ),
-                         itree(inode(“complex”, i2), c2)
+                         complex
                     ]
                 ),
            m
@@ -300,21 +299,17 @@ expr ::= expr + term | expr - term | term
 
 | typeOf( itree(inode("term",_),
                     [
-                         itree(inode(“complex”, i2), c2)
+                         complex
                     ]
                 ),
            m
            ) = 
      typeOf(complex,m)
 
-complex ::= -complex | !complex | exponent
-
-
-
 | typeOf( itree(inode("complex",_),
                     [  
                          itree(inode(“-”, _), [] ),
-                         itree(inode(“complex”, i2), c2)
+                         complex
                     ]
                 ),
            m
@@ -329,7 +324,7 @@ complex ::= -complex | !complex | exponent
 | typeOf( itree(inode("complex",_),
                     [  
                          itree(inode(“!”, _), [] ),
-                         itree(inode(“complex”, i2), c2)
+                         complex
                     ]
                 ),
            m
@@ -343,20 +338,19 @@ complex ::= -complex | !complex | exponent
 
 | typeOf( itree(inode("complex",_),
                     [
-                         itree(inode(“exponent”, i2), c2)
+                         exponent
                     ]
                 ),
            m
            ) =
     typeOf(exponent,m)
 
-exponent ::= factor ^ exponent | factor
 
 | typeOf( itree(inode("exponent",_),
 		         [
-			     itree(inode(“factor”,nodeInfo1),children1),
+			     factor,
 			     itree(inode(“^”,_),children2),
-			     itree(inode(“exponent”,nodeInfo3),children3)
+			     exponent
 		         ]
 		  ),
 	      m
@@ -372,7 +366,7 @@ exponent ::= factor ^ exponent | factor
 
 | typeOf( itree(inode("exponent",_),
 		         [
-			     itree(inode(“factor”,nodeInfo1),children1)
+			     factor
 		         ]
 		  ),
 	      m
@@ -380,21 +374,21 @@ exponent ::= factor ^ exponent | factor
           
 | typeOf( itree(inode("factor",_),
 		         [
-			     itree(inode( “integer”,_),children1)
+			     integer
 		         ]
 		  ),
 	      m
 	 ) = INT
 | typeOf( itree(inode("factor",_),
 		         [
-			     itree(inode( "boolean", info),children1)
+			     boolean
 		         ]
 		  ),
 	      m
 	 )  = BOOL
 | typeOf( itree(inode("factor",_),
 		         [
-			     itree(inode( "id", info),children1)
+			     id
 		         ]
 		  ),
 	      m
@@ -402,7 +396,7 @@ exponent ::= factor ^ exponent | factor
 
 | typeOf( itree(inode("factor",_),
 		         [
-			     itree(inode("increment", nodeInfo1),children1)
+			     increment
 		         ]
 		  ),
 	       m
@@ -411,7 +405,7 @@ exponent ::= factor ^ exponent | factor
 | typeOf( itree(inode("factor",_),
 		         [
 			     itree(inode("(",_),children1),
-			     itree(inode("expression", nodeInfo2),children2),
+			     expression,
 			     itree(inode(")",_),children3)
 		         ]
 		  ),
@@ -421,7 +415,7 @@ exponent ::= factor ^ exponent | factor
 | typeOf( itree(inode("factor",_),
 		         [
 			     itree(inode("|",_),children1),
-			     itree(inode("expression", nodeInfo2),children2),
+			     expression,
 			     itree(inode("|",_),children3)
 		         ]
 		  ),
