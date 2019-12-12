@@ -1,4 +1,6 @@
 (* =========================================================================================================== *)
+exception runtime_error;
+
 structure Model =
 
 struct 
@@ -61,8 +63,13 @@ fun getAddressCounter (env, loc, s) = loc;
 fun valToString (Boolean(v)) = Bool.toString v
   | valToString (Integer(v)) = Int.toString v;
   
-fun pow x 0 = 1
-  | pow x n = x * pow x (n-1);
+fun error msg = ( print msg; raise runtime_error );
+  
+fun toInt(Boolean(x)) = error "not an int"
+  | toInt(Integer(x)) = x;
+
+fun toBool (Integer(x)) = error "not a bool"
+  | toBool (Boolean(x)) = x;
 
 (* =========================================================================================================== *)
 end; (* struct *) 
