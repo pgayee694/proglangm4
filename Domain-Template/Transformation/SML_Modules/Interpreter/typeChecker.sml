@@ -11,13 +11,13 @@ open CONCRETE_REPRESENTATION;
     expression notation we used in M2 to the actual SML tree patterns used in the TL System. See the comments in
     the semantics.sml file for a more detailed discussion on this topic. 
 *)
-
+exception model_error;
 
 fun typeCheck( itree(inode("prog",_), [ stmt_list ] ), m) = m
   | typeCheck( itree(inode(x_root,_), children),_) = raise General.Fail("\n\nIn typeCheck root = " ^ x_root ^ "\n\n")
   | typeCheck _ = raise Fail("Error in Model.typeCheck - this should never occur")
 
-
+(* expression ::= expression || disjunction | disjunction *)
 fun typeOf( itree(inode("expression",_),
                     [
                          expression, 
@@ -43,7 +43,7 @@ fun typeOf( itree(inode("expression",_),
            = 
     typeOf(disjunction,m)
 
-
+(*disjunction ::= disjunction && conjunction | conjunction*)
 | typeOf( itree(inode("disjunction",_),
                     [
                          disjunction, 
@@ -69,7 +69,7 @@ fun typeOf( itree(inode("expression",_),
            m
            ) =
     typeOf(conjunction,m)
-
+(*conjunction ::= conjunction != equality | conjunction == equality | equality*)
 | typeOf( itree(inode("conjunction",_),
                     [
                          conjunction, 
@@ -116,6 +116,7 @@ fun typeOf( itree(inode("expression",_),
            ) =
     typeOf(equality,m)
     
+(*equality ::= equality < expr | equality <= expr | equality > expr | equality >= expr | expr*)
 
 | typeOf( itree(inode("equality",_),
                     [
@@ -197,7 +198,7 @@ fun typeOf( itree(inode("expression",_),
            m
            ) =
     typeOf(expr,m)
-
+(*expr ::= expr + term | expr - term | term*)
 | typeOf( itree(inode("expr",_),
                     [
                          expr, 
@@ -243,6 +244,7 @@ fun typeOf( itree(inode("expression",_),
            ) = 
     typeOf(term,m)
 
+(*term ::= term * complex | term / complex | term % complex | complex*)
 | typeOf( itree(inode("term",_),
                     [
                          term, 
@@ -305,7 +307,7 @@ fun typeOf( itree(inode("expression",_),
            m
            ) = 
      typeOf (complex,m)
-
+(*complex ::= -complex | !complex | exponent*)
 | typeOf ( itree(inode("complex",_),
                     [  
                          itree(inode(“-”, _), [] ),
@@ -345,7 +347,7 @@ fun typeOf( itree(inode("expression",_),
            ) =
     typeOf(exponent,m)
 
-
+(* exponent ::= factor ^ exponent | factor *)
 | typeOf ( itree(inode("exponent",_),
 		         [
 			     factor,
@@ -371,7 +373,7 @@ fun typeOf( itree(inode("expression",_),
 		  ),
 	      m
 	      ) = typeOf(factor,m)
-          
+(* factor ::= integer | boolean | id | increment | (expression) | |expression| *)          
 | typeOf ( itree(inode("factor",_),
 		         [
 			     integer
@@ -427,6 +429,7 @@ fun typeOf( itree(inode("expression",_),
         if t1 = INT then INT
         else ERROR
     end
+  (* postIncr ::= id++ | id-- *)
   | typeOf ( itree(inode("postIncr",_),
                     [
                         itree(inode("id", i1), []),
@@ -456,7 +459,7 @@ fun typeOf( itree(inode("expression",_),
         if t1 = INT then INT
         else ERROR
     end
-        
+  (* preIncr ::= ++id | --id *)      
   | typeOf ( itree(inode("preIncr",_),
                     [
                         itree(inode("++", _), []),
