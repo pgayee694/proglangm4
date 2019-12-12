@@ -1,0 +1,45 @@
+int n = 1;
+int m = 0;
+int o = 0;
+bool b3 = true;
+while(b3)
+{
+	int i = 0;
+	while (i < 10)
+	{
+		n = n * 5;
+		n = n / 3;
+		i++;
+		o += n/i;
+	}
+	if(o <= 80)
+	{
+		print n;
+	}
+	if(o > 80)
+	{
+		print -1;
+	}
+	bool b1 = (o => i) && !(n < 20);
+	bool b2;
+	if(b1)
+	{
+		b2 = ((true != false) || b1) && true;
+	}
+	if(!b1)
+	{
+		b2 = false;
+	}
+
+
+	for(m = 0; m < n; m++)
+	{
+		if(b2 && (4 % 2 == 0))
+		{
+			print(45)
+		}
+	}
+	print n ^ 3;
+	o = o - m - 4;
+	b3 = false;
+}
