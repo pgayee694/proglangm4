@@ -71,311 +71,361 @@ fun M(  itree(inode("stmtList",_),
              ), 
         m
     ) = m *)
+    
+fun pow (x, 0) = 1
+  | pow (x, n) = x * pow(x, n-1);
 
 (* or *)
 fun E( itree(inode("expression",_),
                     [
-                         itree(inode("expression", i1), c1), 
+                         (*itree(inode("expression", i1), c1),*)
+                         expression,
                          itree(inode("||", _), [] ),
-                         itree(inode("disjunction", i2), c2)
+                         (*itree(inode("disjunction", i2), c2)*)
+                         disjunction
                     ]
                 ),
            m0
            ) = let
-                    val (v1,m1) = E(itree(inode("expression", i1), c1),m0)		
+                    val (v1,m1) = E(expression, m0)
                in 
-                    if v1 then (v1, m1) else E(itree(inode("disjunction", i2), c2),m1)
+                    if toBool(v1) then (true, m1) else 
+                        let
+                            val (v2, m2) = E(disjunction, m1)
+                        in
+                            if toBool(v2) then (true, m1) else (false, m1)
+                        end
                end
-               
-  |  E( itree(inode("expression",_),
+            
+  (* or => and *)
+  | E( itree(inode("expression",_),
                     [
-                         itree(inode("disjunction", i1), c1)
+                         disjunction
                     ]
                 ),
            m0
-           )  = E(itree(inode("disjunction", i1), c1),m0)
+           )  = E(disjunction,m0)
            
   (* and *)         
   | E( itree(inode("disjunction",_),
                     [
-                         itree(inode("disjunction", i1), c1), 
+                         (*itree(inode("disjunction", i1), c1), *)
+                         disjunction,
                          itree(inode("&&", _), [] ),
-                         itree(inode("conjunction", i2), c2)
+                         (*itree(inode("conjunction", i2), c2)*)
+                         conjunction
                     ]
                 ),
            m0
            ) = let
-                    val (v1,m1) = E(itree(inode("disjunction", i1), c1),m0)
+                    val (v1,m1) = E(disjunction,m0)
                in 
-                    if v1 then E(itree(inode("conjunction", i2), c2),m1) else (v1,m1)
+                    if toBool(v1) then E(conjunction, m1) else (v1,m1)
                end
-        
+  
+  (* and => conjunction *)
   | E( itree(inode("disjunction",_),
                     [
-                         itree(inode("conjunction", i1), c1)
+                         (*itree(inode("conjunction", i1), c1)*)
+                         conjunction
                     ]
                 ),
            m0
-           ) = E(itree(inode("conjunction", i1), c1), m0)
+           ) = E(conjunction, m0)
           
   (* not equal *)        
   | E( itree(inode("conjunction",_),
                     [
-                         itree(inode("conjunction", i1), c1), 
+                         (*itree(inode("conjunction", i1), c1),*)
+                         conjunction,
                          itree(inode("!=", _), [] ),
-                         itree(inode("equality", i2), c2)
+                         (*itree(inode("equality", i2), c2)*)
+                         equality
                     ]
                 ),
            m0
            ) = let
-                    val (v1,m1) = E(itree(inode("conjunction", i1), c1),m0)
-                    val (v2, m2) = E(itree(inode("equality", i2), c2),m1)
+                    val (v1,m1) = E(conjunction,m0)
+                    val (v2, m2) = E(equality,m1)
                 in 
-                    (v1 <> v2, m2)
+                    (Boolean(v1 <> v2), m2)
                 end
 
   (* equal *)
   | E( itree(inode("conjunction",_),
                     [
-                         itree(inode("conjunction", i1), c1), 
+                         (*itree(inode("conjunction", i1), c1),*)
+                         conjunction,
                          itree(inode("==", _), [] ),
-                         itree(inode("equality", i2), c2)
+                         (*itree(inode("equality", i2), c2)*)
+                         equality
                     ]
                 ),
            m0
            )  = let
-                    val (v1,m1) = E(itree(inode("conjunction", i1), c1),m0)
-                    val (v2, m2) = E(itree(inode("equality", i2), c2),m1)
+                    val (v1,m1) = E(conjunction, m0)
+                    val (v2, m2) = E(equality, m1)
                 in 
-                    (v1 <> v2, m2)
+                    (Boolean(v1 = v2), m2)
                 end
-                
+  
+  (* equality to inequalities *)
   | E( itree(inode("conjunction",_),
                     [
-                   
-                         itree(inode("equality", i1), c1)
+                         equality
                     ]
                 ),
            m0
-           ) = E(itree(inode("equality", i1), c1), m0)
+           ) = E(equality, m0)
 
   (* less than *)
   | E( itree(inode("equality",_),
                     [
-                         itree(inode("equality", i1), c1), 
-    itree(inode("<", _), [] ),
-                         itree(inode("expr", i2), c2)
+                         (*itree(inode("equality", i1), c1),*)
+                         equality,
+                         itree(inode("<", _), [] ),
+                         (*itree(inode("expr", i2), c2)*)
+                         expr
                     ]
                 ),
            m0
            )   = let
-                    val (v1,m1) = E(itree(inode("equality", i1), c1),m0)
-                    val (v2, m2) = E(itree(inode("expr", i2), c2),m1)
+                    val (v1,m1) = E(equality,m0)
+                    val (v2, m2) = E(expr,m1)
                  in 
-                    (v1 < v2, m2)
+                    (Boolean(toInt(v1) < toInt(v2)), m2)
                 end
   
   (* less than equal *)
   | E( itree(inode("equality",_),
                     [
-                         itree(inode("equality", i1), c1), 
+                         (*itree(inode("equality", i1), c1), *)
+                         equality,
                          itree(inode("<=", _), [] ),
-                         itree(inode("expr", i2), c2)
+                         (*itree(inode("expr", i2), c2)*)
+                         expr
                     ]
                 ),
                 m0
            ) = let
-                    val (v1,m1) = E(itree(inode("equality", i1), c1),m0)
-                    val (v2, m2) = E(itree(inode("expr", i2), c2),m1)
+                    val (v1,m1) = E(equality, m0)
+                    val (v2, m2) = E(expr,m1)
                 in 
-                    (v1 <= v2, m2)
+                    (Boolean(toInt(v1) <= toInt(v2)), m2)
                 end
       
   (* greater than *)
   | E( itree(inode("equality",_),
                     [
-                         itree(inode("equality", i1), c1), 
+                         (*itree(inode("equality", i1), c1),*)
+                         equality,
                          itree(inode(">", _), [] ),
-                         itree(inode("expr", i2), c2)
+                         (*itree(inode("expr", i2), c2)*)
+                         expr
                     ]
                 ),
             m0
            ) = let
-                    val (v1,m1) = E(itree(inode("equality", i1), c1),m0)
-                    val (v2, m2) = E(itree(inode("expr", i2), c2),m1)
+                    val (v1,m1) = E(equality, m0)
+                    val (v2, m2) = E(expr, m1)
                 in 
-                    (v1 > v2, m2)
+                    (Boolean(toInt(v1) > toInt(v2)), m2)
                 end
   
   (*greater than equal *)
   | E( itree(inode("equality",_),
                     [
-                         itree(inode("equality", i1), c1), 
+                         (*itree(inode("equality", i1), c1), *)
+                         equality,
                          itree(inode(">=", _), [] ),
-                         itree(inode("expr", i2), c2)
+                         (*itree(inode("expr", i2), c2)*)
+                         expr
                     ]
                 ),
             m0
            ) = let
-                    val (v1,m1) = E(itree(inode("equality", i1), c1),m0)
-                    val (v2, m2) = E(itree(inode("expr", i2), c2),m1)
+                    val (v1,m1) = E(equality,m0)
+                    val (v2, m2) = E(expr,m1)
                 in 
-                    (v1 >= v2, m2)
+                    (Boolean(toInt(v1) >= toInt(v2)), m2)
             end
             
+  (* inequality to plus/minus *)
   | E( itree(inode("equality",_),
                     [
-                    
-                         itree(inode("expr", i1), c1)
+                        expr
                     ]
                 ),
            m0
-           ) = E( itree(inode("expr", i1), c1) ,m0)
+           ) = E( expr ,m0)
            
   (* plus *)         
   | E( itree(inode("expr",_),
                     [
-                         itree(inode("expr", i1), c1), 
+                         (*itree(inode("expr", i1), c1),*)
+                         expr,
                          itree(inode("+", _), [] ),
-                         itree(inode("term", i2), c2)
+                         (*itree(inode("term", i2), c2)*)
+                         term
                     ]
                 ),
            m0
            ) = let
-                    val (v1,m1) = E( itree(inode("expr", i1), c1),m0)
-                    val (v2,m2) = E(itree(inode("term", i2), c2),m1)
+                    val (v1,m1) = E(expr,m0)
+                    val (v2,m2) = E(term,m1)
                in
-                    (v1 + v2,m2)
+                    (Integer(toInt(v1) + toInt(v2)),m2)
                end
                
   (* minus *)             
   | E( itree(inode("expr",_),
                     [
-                         itree(inode("expr", i1), c1), 
+                         (*itree(inode("expr", i1), c1),*)
+                         expr,
                          itree(inode("-", _), [] ),
-                         itree(inode("term", i2), c2)
+                         (*itree(inode("term", i2), c2)*)
+                         term
                     ]
                 ),
             m0
            ) = let
-                    val (v1,m1) = E( itree(inode("expr", i1), c1),m0)
-                    val (v2,m2) = E(itree(inode("term", i2), c2),m1)
+                    val (v1,m1) = E(expr,m0)
+                    val (v2,m2) = E(term,m1)
                 in
-                    (v1 - v2,m2)
+                    (Integer(toInt(v1) - toInt(v2)),m2)
                 end
-                
+  
+  (* plus/minus => multiply/divide/modulus *)
   | E( itree(inode("expr",_),
                     [
-                      
-                         itree(inode("term", i2), c2)
+                         (*itree(inode("term", i2), c2)*)
+                         term
                     ]
                 ),
             m0
-           )= E(itree(inode("term", i2), c2),m0)
+           )= E(term,m0)
 
+  (* multiply/divide/modulus => unary/not *)
   | E( itree(inode("term",_),
                     [
-                    
-                         itree(inode("complex", i1), c1)
+                         complex
                     ]
                 ),
            m0
-           ) = E(itree(inode("complex", i1), c1),m0)
+           ) = E(complex,m0)
 
+  (* multiply *)
   | E( itree(inode("term",_),
                     [
-                         itree(inode("term", i1), c1), 
+                         (*itree(inode("term", i1), c1), *)
+                         term,
                          itree(inode("*", _), [] ),
-                         itree(inode("complex", i2), c2)
+                         (*itree(inode("complex", i2), c2)*)
+                         complex
                     ]
                 ),
            m0
            ) =  let
-                    val (v1,m1) = E(itree(inode("term", i1), c1),m0)
-                    val (v2,m2) = E(itree(inode("complex", i2), c2),m1)
+                    val (v1,m1) = E(term,m0)
+                    val (v2,m2) = E(complex,m1)
                 in
-                    (v1 * v2,m2)
+                    (Integer(toInt(v1) * (v2)),m2)
                 end
                 
+  (* division *)            
   | E( itree(inode("term",_),
                     [
-                         itree(inode("term", i1), c1), 
+                         (*itree(inode("term", i1), c1), *)
+                         term,
                          itree(inode("/", _), [] ),
-                         itree(inode("complex", i2), c2)
+                         (*itree(inode("complex", i2), c2)*)
+                         complex
                     ]
                 ),
            m0
            ) = let
-                    val (v1,m1) = E(itree(inode("term", i1), c1),m0)
-                    val (v2,m2) = E(itree(inode("complex", i2), c2),m1)
+                    val (v1,m1) = E(term,m0)
+                    val (v2,m2) = E(complex,m1)
                 in
-                    (v1 / v2,m2)
+                    (Integer(toInt(v1) div toInt(v2)),m2)
                 end
 
+  (* modulus *)
   | E( itree(inode("term",_),
                     [
-                        itree(inode("term", i1), c1), 
+                        (*itree(inode("term", i1), c1), *)
+                        term,
                         itree(inode("%", _), [] ),
-                        itree(inode("complex", i2), c2)
+                        (*itree(inode("complex", i2), c2)*)
+                        complex
                     ]
                 ),
            m0
            ) = let
-                    val (v1,m1) = E(itree(inode("term", i1), c1),m0)
-                    val (v2,m2) = E(itree(inode("complex", i2), c2),m1)
+                    val (v1,m1) = E(term,m0)
+                    val (v2,m2) = E(complex,m1)
                 in
-                    (v1 mod v2,m2)
+                    (Integer(toInt(v1) mod toInt(v2)), m2)
                 end
 
+  (* unary/not => exponent *)
   | E( itree(inode("complex",_),
                     [
-                        itree(inode("exponent", i2), c2)
+                        exponent
                     ]
                 ),
             m0
-           ) = E(itree(inode("exponent", i2), c2), m0)
+           ) = E(exponent, m0)
 
+  (* unary minus *)
   | E( itree(inode("complex",_),
                     [
                         itree(inode("-", _), [] ),
-                        itree(inode("complex", i2), c2)
+                        (*itree(inode("complex", i2), c2)*)
+                        complex
                     ]
                 ),
             m0
            )  = let
-                    val (v,m1) = E(itree(inode("complex", i2), c2),m0)
+                    val (v,m1) = E(complex,m0)
                 in
-                    (-1 * v, m1)
+                    (Integer(~toBool(v)), m1)
                 end 
 
+  (* negation *)
   | E( itree(inode("complex",_),
                     [
                         itree(inode("!", _), [] ),
-                        itree(inode("complex", i2), c2)
+                        (*itree(inode("complex", i2), c2)*)
+                        complex
                     ]
                 ),
             m0
            ) = let
-                    val (v,m1) = E(itree(inode("complex", i2), c2),m0)
+                    val (v,m1) = E(complex,m0)
                in
-                    (if v then false else true, m1)
+                    (Boolean(not toBool(v)), m1)
                end
    
+  (* power *)
   | E( itree(inode("exponent",_),
 		         [
-			     itree(inode("factor",nodeInfo1),children1),
+			     (*itree(inode("factor",nodeInfo1),children1),*)
+                             factor,
 			     itree(inode("^",_),children2),
-			     itree(inode("exponent",nodeInfo3),children3)
+			     (*itree(inode("exponent",nodeInfo3),children3)*)
+                             exponent
 		         ]
 		  ),
                 m0
 	      ) = let
-                        val (v1,m1) = E(itree(inode("factor",nodeInfo1),children1),m0)
-                        val (v2, m2) = E(itree(inode("exponent",nodeInfo3),children3),m1)
+                        val (v1,m1) = E(factor,m0)
+                        val (v2, m2) = E(exponent,m1)
 		  in 
-                      (pow(v1,v2), m2)
+                      (Integer(pow(toInt(v1),toInt(v2))), m2)
                   end
-                  
+  (*
+  (* <exponent> ::= <factor> *)
   | E( itree(inode("exponent",_),
 		         [
 			     itree(inode("factor",nodeInfo1),children1)
@@ -384,34 +434,38 @@ fun E( itree(inode("expression",_),
                 m0
 	      ) = E(itree(inode("factor",nodeInfo1),children1), m0)
 
+  (* immediate integer *)
   | E( itree(inode("factor",_),
 		         [
-			     itree(inode( "integer", info), children1)
+			     itree(inode( "integer_val", info), children1)
 		         ]
 		  ),
 	      m
 	 ) = let
-                    val v = getLeaf(itree(inode( "integer", info),children1))
+                    val v = getLeaf(itree(inode( "integer_val", info),children1))
                     val int = valOf(Int.fromString(v))
 	      in
 	        (Integer int, m)
 	end
-
-	| E( itree(inode("factor",_),
+        
+  (* immediate boolean *)
+  | E( itree(inode("factor",_),
 		         [
-			     itree(inode( "boolean", info),children1)
+			     itree(inode( "boolean_val", info),children1)
 		         ]
 		  ),
 	      m
 	 ) = let
-	         val v = getLeaf(itree(inode( "boolean", info),children1))
+	         val v = getLeaf(itree(inode( "boolean_val", info),children1))
 	         val bool = valOf(Bool.fromString(v))
 	      in
 	        (Boolean bool, m)
 	end
-	| E( itree(inode("factor",_),
+     
+  (* identifier *)   
+  | E( itree(inode("factor",_),
 		         [
-			     itree(inode( "id", info),children1)
+			     itree(inode( "id", info), children1)
 		         ]
 		  ),
 	      m
@@ -423,6 +477,7 @@ fun E( itree(inode("expression",_),
 	        (v, m)
 	end
 
+  (* parenthesis *)
   | E( itree(inode("factor",_),
 		         [
 			     itree(inode("(",_),children1),
@@ -433,6 +488,7 @@ fun E( itree(inode("expression",_),
 	       m
 	  ) = E(itree(inode("expression", nodeInfo2),children2), m)
 
+  (* absolute value *)
   | E( itree(inode("factor",_),
 		         [
 			     itree(inode("|",_),children1),
@@ -440,9 +496,14 @@ fun E( itree(inode("expression",_),
 			     itree(inode("|",_),children3)
 		         ]
 		  ),
-	       m
-	  ) = E(itree(inode("expression", nodeInfo2),children2), m)
+	       m0
+	  ) = let
+                    val (v, m1) = E(itree(inode("expression", nodeInfo2),children2), m0)
+              in
+                    (abs v, m1)
+              end
 
+  (* <factor> ::= <increment> *)
   | E( itree(inode("factor",_),
 		         [
 			     itree(inode("increment", nodeInfo1),children1)
@@ -451,21 +512,24 @@ fun E( itree(inode("expression",_),
 	       m
 	  ) = E(itree(inode("increment", nodeInfo1),children1), m)
 
+  (* post increment *)
   | E ( itree(inode("postIncr",_),
                     [
-                        itree(inode("id_node", i1), c1),
+                        itree(inode("id", i1), c1),
                         itree(inode("++", _), [])
                     ]
                 ),
            m0
         ) = let
-                val id = getLeaf(itree(inode("id_node", i1), c1))
-		val (v1,m1) = E(id,m0)
-		val loc = getLoc(accessEnv(id, m1)) 
-		val m2 = updateStore(loc, v1 + 1, m2)
+                val id = getLeaf(itree(inode("id", i1), c1))
+		val loc = getLoc(accessEnv(id, m0))
+                val v = accessStore(loc, m0)
+		val m1 = updateStore(loc, v + 1, m0)
 	in
-		(v1, m2)
+		(v, m1)
 	end
+        
+  (* post decrement *)
   | E ( itree(inode("postIncr",_),
                     [
                         itree(inode("id_node", i1), c1),
@@ -475,13 +539,15 @@ fun E( itree(inode("expression",_),
            m0
         ) = let
                 val id = getLeaf(itree(inode("id_node", i1), c1))
-		val (v1,m1) = E(id,m0)
-		val loc = getLoc(accessEnv(id, m1))
-		val m2 = updateStore(loc, v1 - 1, m2)
+		val loc = getLoc(accessEnv(id, m0))
+                val v = accessStore(loc, m0)
+		val m1 = updateStore(loc, v - 1, m0)
 	in
-		(v1, m2)
+		(v1, m1)
 	end
         
+        
+  (* pre increment *)
   | E ( itree(inode("preIncr",_),
                     [
                         itree(inode("++", _), []),
@@ -491,12 +557,14 @@ fun E( itree(inode("expression",_),
            m0
         ) = let
                 val id = getLeaf(itree(inode("id_node", id1), c1))
-		val (v1,m1) = E(id,m0)
-		val loc = getLoc(accessEnv(id, m1))
-		val m2 = updateStore(loc, v1 + 1, m2)
+		val loc = getLoc(accessEnv(id, m0))
+                val v = accessStore(loc, m0)
+		val m1 = updateStore(loc, v1 + 1, m0)
 	in
-		(v1 + 1,m2)
+		(v1 + 1,m1)
 	end
+        
+  (* pre decrement *)
   | E ( itree(inode("preIncr",_),
                     [
                         itree(inode("--", _), []),
@@ -506,11 +574,11 @@ fun E( itree(inode("expression",_),
            m0
         ) = let
                 val id = getLeaf(itree(inode("id_node", i1), c1))
-		val (v1,m1) = E(id,m0)
-		val loc = getLoc(accessEnv(id, m1))
-		val m2 = updateStore(loc, v1 + 1, m2)
+		val loc = getLoc(accessEnv(id, m0))
+                val v = accessStore(loc, m0)
+		val m1 = updateStore(loc, v + 1, m0)
 	in
-		(v1 - 1,m2)
+		(v1 - 1,m1)
 	end
 
 fun O( expression1, increment1, block1, m0 ) =
@@ -527,6 +595,8 @@ fun O( expression1, increment1, block1, m0 ) =
             end
         else m1
     end
+    
+*)
 
 fun M( itree(inode("stmtList", _),
                     [
