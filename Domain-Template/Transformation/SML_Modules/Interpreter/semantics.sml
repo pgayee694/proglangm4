@@ -455,12 +455,7 @@ fun E( itree(inode("expression",_),
 		         ]
 		  ),
 	      m
-	 ) = let
-	         val v = getLeaf(itree(inode( "true", i),[]))
-	         val bool = valOf(Bool.fromString(v))
-	      in
-	        (Boolean bool, m)
-	end
+	 ) = (Boolean true, m)
     (* immediate boolean *)
   | E( itree(inode("factor",_),
 		         [
@@ -468,12 +463,7 @@ fun E( itree(inode("expression",_),
 		         ]
 		  ),
 	      m
-	 ) = let
-	         val v = getLeaf(itree(inode( "false", i),[]))
-	         val bool = valOf(Bool.fromString(v))
-	      in
-	        (Boolean bool, m)
-	end
+	 ) = (Boolean false, m)
      
   (* identifier *)   
   | E( itree(inode("factor",_),
@@ -599,25 +589,25 @@ fun E( itree(inode("expression",_),
 
 fun M( itree(inode("stmtList", _),
                     [
-                         itree(inode("stmt", nodeInfo1), children1),
-                         itree(inode("stmtList", nodeInfo2), children2)
+                         stmt,
+                         stmtList
                     ]
                 ),
            m0
            ) = let
-                 val m1 = M( itree(inode("stmt", nodeInfo1), children1), m0)
-                 val m2 = M( itree(inode("stmtList", nodeInfo2), children2), m1 )
+                 val m1 = M( stmt, m0)
+                 val m2 = M( stmtList, m1 )
                  in
                    m2
                end
                
   | M( itree(inode("stmtList",_),
                     [
-                        itree(inode("stmt", i1), c1)
+                        stmt
                     ]
                 ),
            m0
-           ) = M(itree(inode("stmt", i1),c1),m0)
+           ) = M(stmt,m0)
            
   | M( itree(inode("stmt", _),
                     [
@@ -627,30 +617,37 @@ fun M( itree(inode("stmtList", _),
                 ),
            m0
         ) = M( stmt, m0)
+  | M( itree(inode("stmt", _),
+                    [
+                        stmt
+                    ]
+                ),
+            m0
+        ) = M(stmt, m0)
   
   | M ( itree(inode("iter",info1),
                     [
                         itree(inode("while", info2), children2),
                         itree(inode("(",info3), []),
-                        itree(inode("expression", info4), children4),
+                        expression,
                         itree(inode(")",info5), [] ),
-                        itree(inode("block", info6), children6)
+                        block
                     ]
                 ),
            m0
         ) = let
-		val (v, m1) = E(itree(inode("expression", info4), children4), m0 )
+		val (v, m1) = E(expression, m0 )
 	in
 	    if toBool(v) then M(itree(inode("iter",info1),
                     [
                         itree(inode("while", info2), children2),
                         itree(inode("(",info3), []),
-                        itree(inode("expression", info4), children4),
+                        expression,
                         itree(inode(")",info5), [] ),
-                        itree(inode("block", info6), children6)
+                        block
                     ]
                 ),
-                 M(itree(inode("block", info6), children6), m1))
+                 M(block, m1))
 	    else m1
 	end
         
@@ -658,19 +655,19 @@ fun M( itree(inode("stmtList", _),
                     [
                         itree(inode("for", _), []),
                         itree(inode("(",_), [] ),
-                        itree(inode("assign", info1), children1),
+                        assign,
                         itree(inode(";",_), [] ),
-                        itree(inode("expression", info2), children2),
+                        expression,
                         itree(inode(";",_), [] ),
-                        itree(inode("increment", info3), children3),
+                        increment,
                         itree(inode(";",_), [] ),
-                        itree(inode("block", info4), children4)
+                        block
                     ]
                 ),
            m0
         ) = let
-		val m1 = M(itree(inode("assign", info1), children1), m0 )
-		val m2 = O(itree(inode("expression", info2), children2), itree(inode("increment", info3), children3), itree(inode("block", info4), children4), m1 )
+		val m1 = M(assign, m0 )
+		val m2 = O(expression, increment, block, m1 )
            in
 	 	m2
 	end
@@ -719,6 +716,7 @@ fun M( itree(inode("stmtList", _),
             in
                 updateEnv( id, BOOL, loc, (env, loc+1, s) )
             end
+            
   | M ( itree(inode("dec",_),
                     [
                         itree(inode("bool", _), []),
@@ -744,14 +742,14 @@ fun M( itree(inode("stmtList", _),
                         itree(inode("(", _), []),
                         expression_node,
                         itree(inode(")", _), []),
-                        itree(inode("block", info2), children2)
+                        block
                     ]
                 ),
            m0
         ) = let
                 val (v, m1) = E( expression_node, m0 )
             in
-                if toBool(v) then M ( itree(inode("block", info2), children2), m1)
+                if toBool(v) then M ( block, m1)
                 else m1
             end 
 
@@ -787,13 +785,13 @@ fun M( itree(inode("stmtList", _),
   | M ( itree(inode("block",_),
                     [
                         itree(inode("{", _), []),
-                        stmtList_node,
+                        stmtList,
                         itree(inode("}", _), [])
                     ]
                 ),
            (env0, loc, s0)
         ) = let
-                val (env1, loc1, s1) = M(stmtList_node, (env0,loc, s0))
+                val (env1, loc1, s1) = M(stmtList, (env0, loc, s0))
                 val m2 = ( env0, loc, s1)
             in
                 m2
