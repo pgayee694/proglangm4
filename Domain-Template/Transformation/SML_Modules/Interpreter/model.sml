@@ -76,6 +76,45 @@ fun toInt(Boolean(x)) = error "not an int"
 fun toBool (Integer(x)) = error "not a bool"
   | toBool (Boolean(x)) = x;
 
+fun typeToString BOOL = "BOOL"
+  | typeToString INT = "INT"
+  | typeToString ERROR = "ERROR";
+  
+fun envItemToString (id, t, loc) = "( " ^ id ^ ", " ^ typeToString t ^ ", " ^ Int.toString loc ^ " )";
+
+fun denotableToString (Boolean(x)) = Bool.toString x
+  | denotableToString (Integer(x)) = Int.toString x;
+  
+fun storeItemToString (loc, v) = "( " ^ Int.toString loc ^ ", " ^ denotableToString v ^ " )";
+
+fun printEnv [] = print "\n"
+  | printEnv (item::env) = 
+        (
+            print("\n" ^ envItemToString item);
+            printEnv env
+        );
+
+fun printStore [] = print "\n"
+  | printStore (item::store) =
+        (
+            print("\n" ^ storeItemToString item);
+            printStore store
+        );
+
+fun printModel (env, loc, s) =
+    (
+        print("ENV");
+        printEnv(env);
+        
+        print("\n");
+        print("ADDRESS COUNTER\n");
+        print(Int.toString loc ^ "\n");
+        
+        print("\n");
+        print("STORE");
+        printStore s   
+    );
+
 (* =========================================================================================================== *)
 end; (* struct *) 
 (* =========================================================================================================== *)
