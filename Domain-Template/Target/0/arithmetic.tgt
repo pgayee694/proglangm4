@@ -1,2 +1,13 @@
-int x = 5;
-x = 6;
+int num1 = 10;
+int num2 = 5;
+int num3 = num1 + num2;
+int num4 = num1 - num2;
+int num5 = num1 * num2;
+int num6 = num1 / num2;
+int num7 = num1 % num2;
+int num8 = num1 ^ 2;
+int num9 = -9;
+
+num3 = 3 * num3 + 2;
+num4 = (num3 % 2) ^ 2;
+num5 = ((num3 + 4) * 5 + 3 * 7 + 6 ^ 2 - (3*num4)^2);
