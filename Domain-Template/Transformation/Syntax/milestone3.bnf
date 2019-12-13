@@ -27,7 +27,7 @@ stmtList
 <term>               ::= <term> "*" <complex> | <term> "/" <complex>
                         | <term> "%" <complex> | <complex>			                                  .
 <complex>            ::= "-"<complex> | "!"<complex> | <exponent>                                                 .							
-<factor>             ::= integer | boolean | id | <increment> | "("<expression>")" | "|"<expression>"|"           . 
+<factor>             ::= integer | "true" | "false" | id | <increment> | "("<expression>")" | "|"<expression>"|"           . 
 <exponent>           ::= <factor> "^" <exponent> | <factor>                                                       .
 
 

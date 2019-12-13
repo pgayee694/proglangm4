@@ -42,13 +42,8 @@ val initialModel = ( []:env, 0:loc, []:store )
 (* this is strictly for adding in new values *)
 fun updateEnv(id, a_type, a_location, (env, loc, s)) = ((id, a_type, a_location)::env, loc, s);
 
-fun updateStore(a_location, a_value, (env, loc, [])) = (env, loc, (a_location, a_value)::[])
-  | updateStore(a_location, a_value, (env, loc, (loc1, v1)::s)) = if a_location = loc1 then (env, loc, (a_location, a_value)::s) else
-        let
-            val (env2, loc2, s2) = updateStore(a_location, a_value, (env, loc,s))
-        in
-            (env2, loc2, (loc1, v1)::s2)
-        end;
+fun updateStore(a_location, a_value, (env, loc, [])) = (env, loc, [(a_location, a_value)])
+  | updateStore(a_location, a_value, (env, loc, (loc1, v1)::s)) = if a_location = loc1 then (env, loc, (a_location, a_value)::s) else updateStore(a_location, a_value, (env, loc, s))
 
 fun accessEnv(id1,([],loc, s)) = raise Domain
  | accessEnv(id1, ((id2, a_type, a_location)::env, loc, s)) =
@@ -76,18 +71,52 @@ fun toInt(Boolean(x)) = error "not an int"
 fun toBool (Integer(x)) = error "not a bool"
   | toBool (Boolean(x)) = x;
 
+
+(* Functions to inspect program state *)
+	fun typeToString BOOL  = "bool"
+	  | typeToString INT   = "integer"
+	  | typeToString ERROR = "error";
+	
+
+	fun envEntryToString (id,t,loc) = 
+	       "(" ^ id ^ "," ^ typeToString t ^ "," ^ Int.toString loc ^ ")"; 
+	
+
+	fun showEnv [] = print "\n"
+	  | showEnv (entry::env) = ( 
+	                             print("\n" ^ envEntryToString entry);
+	                             showEnv env
+	                           );
+	fun varToString (Boolean(x)) = Bool.toString x
+	  | varToString (Integer(x)) = Int.toString x;
+	
+
+	fun storeEntryToString (loc, v) = 
+	       "(" ^ Int.toString loc ^ "," ^ varToString v ^ ")"; 
+	
+
+	fun showStore [] = print "\n"
+	  | showStore (entry::store) = ( 
+	                             print("\n" ^ storeEntryToString entry);
+	                             showStore store
+	                           );
+	
+
+	fun showProgState (env,n,s) =   
+	    (
+	    print("ENVIRONMENT");
+	    showEnv env;
+	    
+	    print("\n");
+	    print("COUNTER\n");
+	    print(Int.toString n ^ "\n");
+	    
+	    print("\n");
+	    print("STORE");
+	    showStore s
+	 )
+         
+
 (* =========================================================================================================== *)
 end; (* struct *) 
 (* =========================================================================================================== *)
-
-
-
-
-
-
-
-
-
-
-
-

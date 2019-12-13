@@ -407,7 +407,7 @@ fun typeOf( itree(inode("expression",_),
     
 | typeOf ( itree(inode("factor",_),
 		         [
-			     itree(inode("integer_val", _), [])
+			     itree(inode("integer", _), [])
 		         ]
 		  ),
 	      m
@@ -415,7 +415,7 @@ fun typeOf( itree(inode("expression",_),
          
 | typeOf ( itree(inode("factor",_),
 		         [
-			     itree(inode("boolean_val", _), [])
+			     itree(inode("boolean", _), [])
 		         ]
 		  ),
 	      m
@@ -597,7 +597,7 @@ fun typeCheck( itree(inode("stmtList",_),
         val t1 = typeOf(expression, (env, loc, s))
 	val m1 = updateEnv(id, BOOL, loc, (env, loc+1, s))
     in
-        if t1 = INT then m1 else raise model_error
+        if t1 = BOOL then m1 else raise model_error
     end
     
 | typeCheck( itree(inode("assign",_), 

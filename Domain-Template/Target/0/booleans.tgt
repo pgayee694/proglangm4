@@ -10,3 +10,5 @@ bool b8 = 5 < 9;
 bool b9 = 9 > 5;
 bool b10 = 5 <= 5;
 bool b11 = 6 >= 5;
+
+bool b12 = (!((true||false) && true) || true) == (true != false);
