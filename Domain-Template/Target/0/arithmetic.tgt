@@ -1,2 +1,2 @@
-int num1 = 10;
-num1 = 6;
+int x = 5;
+x = 6;
