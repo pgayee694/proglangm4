@@ -1,0 +1,14 @@
+bool b1 = true;
+bool b2 = false;
+bool b3 = !b1;
+bool b4 = b1 || b2;
+bool b5 = b1 && b2;
+bool b6 = b1 != b2;
+bool b7 = b1 == b2;
+
+bool b8 = 5 < 9;
+bool b9 = 9 > 5;
+bool b10 = 5 <= 5;
+bool b11 = 6 >= 5;
+
+bool b12 = (!((true||false) && true) || true) == (true != false);
