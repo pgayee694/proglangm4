@@ -75,8 +75,8 @@ ws           = [\  \t \n];
 <INITIAL> ")"                           => ( SHELL(yytext        , yytext,     getNextTokenPos(yytext))    );
 <INITIAL> "|"                           => ( SHELL(yytext        , yytext,     getNextTokenPos(yytext))    );
 
-<INITIAL> {integer}                     => ( SHELL("integer_val"   , yytext,     getNextTokenPos(yytext))    );
-<INITIAL> {boolean}                     => ( SHELL("boolean_val"        , yytext,     getNextTokenPos(yytext))    );
+<INITIAL> {integer}                     => ( SHELL("integer"   , yytext,     getNextTokenPos(yytext))    );
+<INITIAL> {boolean}                     => ( SHELL("boolean"        , yytext,     getNextTokenPos(yytext))    );
 <INITIAL> {id}                          => ( SHELL("id"        , yytext,     getNextTokenPos(yytext))    );
 
 <INITIAL> {ws}+        => ( getNextTokenPos(yytext); lex()  );

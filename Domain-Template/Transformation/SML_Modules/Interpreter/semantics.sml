@@ -437,12 +437,12 @@ fun E( itree(inode("expression",_),
   (* immediate integer *)
   | E( itree(inode("factor",_),
 		         [
-			     itree(inode( "integer_val", i), children1)
+			     itree(inode( "integer", i), children1)
 		         ]
 		  ),
 	      m
 	 ) = let
-                    val v = getLeaf(itree(inode( "integer_val", i),children1))
+                    val v = getLeaf(itree(inode( "integer", i),children1))
                     val int = valOf(Int.fromString(v))
 	      in
 	        (Integer int, m)
@@ -451,12 +451,12 @@ fun E( itree(inode("expression",_),
   (* immediate boolean *)
   | E( itree(inode("factor",_),
 		         [
-			     itree(inode( "boolean_val", i),children1)
+			     itree(inode( "boolean", i),children1)
 		         ]
 		  ),
 	      m
 	 ) = let
-	         val v = getLeaf(itree(inode( "boolean_val", i),children1))
+	         val v = getLeaf(itree(inode( "boolean", i),children1))
 	         val bool = valOf(Bool.fromString(v))
 	      in
 	        (Boolean bool, m)
@@ -600,18 +600,11 @@ fun M( itree(inode("stmtList", _),
                
   | M( itree(inode("stmtList",_),
                     [
-                        itree(inode("epsilon", _), [])
+                        itree(inode("stmt", i1), c1)
                     ]
                 ),
            m0
-           ) = m0
-           
-  | M( itree(inode("epsilon",_),
-                    [
-                    ]
-                ),
-           m0
-           ) = m0
+           ) = M(itree(inode("stmt", i1), c1),m0)
            
   | M( itree(inode("stmt", _),
                     [

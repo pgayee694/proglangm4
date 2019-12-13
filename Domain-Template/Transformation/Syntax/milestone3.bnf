@@ -3,7 +3,7 @@ USE_LR_PARSER
 stmtList
 
 (* ======================================================================================================= *) 
-<stmtList>           ::= <stmt> <stmtList>	| <epsilon>                                                       .
+<stmtList>           ::= <stmt> <stmtList>	| <stmt>                                                       .
 <epsilon>            ::=                                                                                          .
 <stmt>               ::= <dec>";" | <cond> | <iter> | <block> | <increment>";" | <printExpression>";" | <assign>";" .
 <iter>               ::= "while" "(" <expression> ")" <block>
@@ -27,7 +27,7 @@ stmtList
 <term>               ::= <term> "*" <complex> | <term> "/" <complex>
                         | <term> "%" <complex> | <complex>			                                  .
 <complex>            ::= "-"<complex> | "!"<complex> | <exponent>                                                 .							
-<factor>             ::= integer_val | boolean_val | id | <increment> | "("<expression>")" | "|"<expression>"|"           . 
+<factor>             ::= integer | boolean | id | <increment> | "("<expression>")" | "|"<expression>"|"           . 
 <exponent>           ::= <factor> "^" <exponent> | <factor>                                                       .
 
 

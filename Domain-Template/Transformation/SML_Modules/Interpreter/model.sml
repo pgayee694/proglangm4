@@ -42,8 +42,13 @@ val initialModel = ( []:env, 0:loc, []:store )
 (* this is strictly for adding in new values *)
 fun updateEnv(id, a_type, a_location, (env, loc, s)) = ((id, a_type, a_location)::env, loc, s);
 
-fun updateStore(a_location, a_value, (env, loc, [])) = (env, loc, [(a_location, a_value)])
-  | updateStore(a_location, a_value, (env, loc, (loc1, v1)::s)) = if a_location = loc1 then (env, loc, (loc1, a_value)::s) else updateStore(a_location, a_value, (env, loc, s))
+fun updateStore(a_location, a_value, (env, loc, [])) = (env, loc, (a_location, a_value)::[])
+  | updateStore(a_location, a_value, (env, loc, (loc1, v1)::s)) = if a_location = loc1 then (env, loc, (a_location, a_value)::s) else
+        let
+            val (env2, loc2, s2) = updateStore(a_location, a_value, (env, loc,s))
+        in
+            (env2, loc2, (loc1, v1)::s2)
+        end;
 
 fun accessEnv(id1,([],loc, s)) = raise Domain
  | accessEnv(id1, ((id2, a_type, a_location)::env, loc, s)) =
