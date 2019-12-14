@@ -407,7 +407,7 @@ fun typeOf( itree(inode("expression",_),
     
 | typeOf ( itree(inode("factor",_),
 		         [
-			     itree(inode("integer", _), [])
+			     itree(inode("integer", _), _)
 		         ]
 		  ),
 	      m
@@ -415,7 +415,15 @@ fun typeOf( itree(inode("expression",_),
          
 | typeOf ( itree(inode("factor",_),
 		         [
-			     itree(inode("boolean", _), [])
+			     itree(inode("true", _), _)
+		         ]
+		  ),
+	      m
+	 )  = BOOL
+ 
+| typeOf ( itree(inode("factor",_),
+		         [
+			     itree(inode("false", _), _)
 		         ]
 		  ),
 	      m
@@ -432,14 +440,14 @@ fun typeOf( itree(inode("expression",_),
   (* postIncr ::= id++ | id-- *)
   | typeOf ( itree(inode("postIncr",_),
                     [
-                        itree(inode("id", i1), []),
+                        itree(inode("id", i1), c),
                         itree(inode("++", _), [])
                     ]
                 ),
            m
         ) = 
     let
-        val t1 = typeOf(itree(inode("id", i1), []), m)
+        val t1 = typeOf(itree(inode("id", i1), c), m)
     in
         if t1 = INT then INT
         else ERROR
@@ -447,14 +455,14 @@ fun typeOf( itree(inode("expression",_),
     
   | typeOf ( itree(inode("postIncr",_),
                     [
-                        itree(inode("id", i1), []),
+                        itree(inode("id", i1), c),
                         itree(inode("--", _), [])
                     ]
                 ),
            m
         ) = 
     let
-        val t1 = typeOf(itree(inode("id", i1), []), m)
+        val t1 = typeOf(itree(inode("id", i1), c), m)
     in
         if t1 = INT then INT
         else ERROR
@@ -478,25 +486,26 @@ fun typeOf( itree(inode("expression",_),
   | typeOf ( itree(inode("preIncr",_),
                     [
                         itree(inode("--", _), []),
-                        itree(inode("id", i1), [])
+                        id as itree(inode("id", i1), c)
                     ]
                 ),
            m
         ) = 
     let
-        val t1 = typeOf(itree(inode("id", i1), []), m)
+        val t1 = typeOf(id, m)
     in
         if t1 = INT then INT
         else ERROR
     end
     
-  | typeOf ( itree(inode("id", i1), []), m) =
+  | typeOf ( id as itree(inode("id", i1), c), m) =
         let
-            val id = getLeaf(itree(inode("id", i1), []))
-            val t = getType(accessEnv(id, m))
+            val id_val = getLeaf(id)
+            val t = getType(accessEnv(id_val, m))
         in
             t
         end
+        
   | typeOf( itree(inode(x_root,_),children), _) = raise General.Fail("\n\nIn typeOf root = " ^ x_root ^ "\n\n")
   | typeOf _ = raise Fail("Error in Model.typeOf - this should never occur")
   
@@ -667,7 +676,7 @@ fun typeCheck( itree(inode("stmtList",_),
                          expression,
                          itree(inode(";",_), [] ),
                          increment,
-                         itree(inode(";",_), [] ),
+                         itree(inode(")",_), [] ),
                          block
                     ]
                 ), m0 ) =
@@ -697,7 +706,11 @@ fun typeCheck( itree(inode("stmtList",_),
                          itree(inode("print",info1), [] ),
                          expression
                     ]
-                ), m0 ) = typeCheck(expression, m0)
+                ), m0 ) = 
+            (
+                typeOf(expression, m0);
+                m0
+            )
 
   | typeCheck( itree(inode(x_root,_), children),_) = raise General.Fail("\n\nIn typeCheck root = " ^ x_root ^ "\n\n")
   | typeCheck _ = raise Fail("Error in Model.typeCheck - this should never occur")

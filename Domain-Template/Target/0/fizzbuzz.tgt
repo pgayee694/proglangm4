@@ -4,18 +4,18 @@ for(i = 0; i < n; i++)
 {
 	if(i % 3 == 0 && i % 5 != 0)
 	{
-		print("fizz");
+		print(3);
 	}
 	if(i % 3 != 0 && i % 5 == 0)
 	{
-		print("buzz");
+		print(5);
 	}
 	if(i % 3 == 0 && i % 5 == 0)
 	{
-		print("fizzbuzz");
+		print(35);
 	}
 	if(i % 3 != 0 && i % 5 != 0)
 	{
-		print(i);
+		print(0);
 	}
 }

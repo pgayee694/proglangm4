@@ -2,7 +2,7 @@ int n = 10;
 while(n >0)
 {
 	print n;
-	print (n % 3) * 4;
+	print ((n % 3) * 4);
 	--n;
 }
 

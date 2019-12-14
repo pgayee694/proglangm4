@@ -29,7 +29,3 @@ stmtList
 <complex>            ::= "-"<complex> | "!"<complex> | <exponent>                                                 .							
 <factor>             ::= integer | "true" | "false" | id | <increment> | "("<expression>")" | "|"<expression>"|"           . 
 <exponent>           ::= <factor> "^" <exponent> | <factor>                                                       .
-
-
-                                                               
-                                                           

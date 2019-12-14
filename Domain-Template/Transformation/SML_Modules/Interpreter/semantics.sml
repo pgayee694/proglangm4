@@ -514,7 +514,18 @@ fun E( itree(inode("expression",_),
 		  ),
 	       m
 	  ) = E(increment, m)
-          
+  | E ( itree(inode("increment",_),
+                    [
+                        incr_node
+                    ]
+                ),
+           m0
+        ) = let 
+		val (v,m1) = E( incr_node, m0 )
+	in
+		(v,m1)
+	end
+        
   (* post increment *)
   | E ( itree(inode("postIncr",_),
                     [
@@ -660,7 +671,7 @@ fun M( itree(inode("stmtList", _),
                         expression,
                         itree(inode(";",_), [] ),
                         increment,
-                        itree(inode(";",_), [] ),
+                        itree(inode(")",_), [] ),
                         block
                     ]
                 ),
@@ -760,7 +771,7 @@ fun M( itree(inode("stmtList", _),
                 ),
            m0
         ) = let 
-		val m1 = M( incr_node, m0 )
+		val (v, m1) = E( incr_node, m0 )
 	in
 		m1
 	end
@@ -807,7 +818,7 @@ fun M( itree(inode("stmtList", _),
         ) = let
                 val (v, m1)  = E( expression_node, m0 )
             in
-                print(valToString(v));
+                print(valToString(v) ^ "\n");
                 m1
             end
 
