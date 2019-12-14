@@ -766,7 +766,25 @@ fun M( itree(inode("stmtList", _),
                 if toBool(v) then M ( block, m1)
                 else m1
             end 
-
+            
+  | M( itree(inode("cond", _),
+                    [
+                        itree(inode("if", _), []),
+                        itree(inode("(", _), []),
+                        expression,
+                        itree(inode(")", _), []),
+                        block1,
+                        itree(inode("else", _), []),
+                        block2
+                    ]
+            ),
+        m0
+     ) = let
+            val (v, m1) = E(expression, m0)
+         in
+            if toBool(v) then M(block1, m1) else M(block2, m1)
+         end
+                       
   | M ( itree(inode("increment",_),
                     [
                         incr_node

@@ -11,7 +11,7 @@ stmtList
                                       
 <dec> ::= "int" id | "int" id "=" <expression> | "bool" id | "bool" id "=" <expression>                           .
 
-<cond>               ::= "if" "(" <expression> ")" <block>                                                        .
+<cond>               ::= "if" "(" <expression> ")" <block> | "if" "(" <expression> ")" <block> "else" <block>     .
 <increment>          ::= <postIncr> | <preIncr>									  .
 <postIncr>           ::= id "++" | id "--"									  .
 <preIncr>            ::= "++" id | "--" id       .

@@ -641,6 +641,26 @@ fun typeCheck( itree(inode("stmtList",_),
         if t = BOOL then m0 else raise model_error
     end
     
+| typeCheck( itree(inode("cond", _),
+                    [
+                        itree(inode("if",_), [] ),
+                        itree(inode("(",_), [] ),
+                        expression,
+                        itree(inode(")",_), [] ),
+                        block1,
+                        itree(inode("else", _), []),
+                        block2
+                    ]
+                ),
+            m0
+        ) = let
+                val t = typeOf(expression, m0)
+                val m1 = typeCheck(block1, m0)
+                val m2 = typeCheck(block2, m0)
+            in
+                if t = BOOL then m0 else raise model_error
+            end
+    
 | typeCheck( itree(inode("increment",_), 
                     [
                          increment

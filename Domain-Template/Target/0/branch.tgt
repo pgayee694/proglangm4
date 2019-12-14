@@ -1,0 +1,25 @@
+int num = 2;
+int x = 5;
+
+if(num > x)
+{
+    print 1;
+}
+else
+{
+    print 2;
+}
+
+if(true)
+{
+    print 3;
+}
+
+if(false)
+{
+    print 4;
+}
+else
+{
+    print 5;
+}
