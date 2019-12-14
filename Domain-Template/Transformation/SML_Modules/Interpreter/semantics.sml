@@ -612,6 +612,7 @@ fun M( itree(inode("stmtList", _),
                    m2
                end
                
+               
   | M( itree(inode("stmtList",_),
                     [
                         stmt
@@ -635,6 +636,8 @@ fun M( itree(inode("stmtList", _),
                 ),
             m0
         ) = M(stmt, m0)
+        
+  | M( itree(inode("epsilon", _), _), m) = m
   
   | M ( itree(inode("iter",info1),
                     [

@@ -3,7 +3,7 @@ USE_LR_PARSER
 stmtList
 
 (* ======================================================================================================= *) 
-<stmtList>           ::= <stmt> <stmtList>	| <stmt>                                                       .
+<stmtList>           ::= <stmt> <stmtList>	| <epsilon>                                                       .
 <epsilon>            ::=                                                                                          .
 <stmt>               ::= <dec>";" | <cond> | <iter> | <block> | <increment>";" | <printExpression>";" | <assign>";" .
 <iter>               ::= "while" "(" <expression> ")" <block>
